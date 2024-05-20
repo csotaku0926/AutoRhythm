@@ -1,0 +1,142 @@
+body{
+    margin : 0;
+    background: linear-gradient(180deg, black,rgb(9, 12, 65));
+    width : 100%;
+    height : 100vh;
+}
+
+div.game{
+    display: flex;
+    justify-content: space-around;
+}
+
+div.track_container{
+    position: relative; /* divided from the other one */
+    display: flex;
+    justify-content: space-evenly;
+    left : 2em;
+    width : 300px;
+    height : 100vh;
+    background-color: rgb(138, 137, 137);
+}
+
+div.track{
+    flex : 0 0 calc(100%/8); /* eight parts of width */
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    margin: 0.2%; /* white lines */
+    height: 100%;
+}
+
+div.note{
+    position: absolute;
+    top: 0;
+    width: 4em;
+    height: 5px;
+    border-radius: 0.5em;
+    background-color: blue;
+}
+
+div.judge_line{
+    position: absolute; 
+    display: block;
+    top: 80%;
+    width: 5.5em;
+    bottom:10%;
+    height: 5px;
+    background-color: aquamarine;
+    transition-duration: 0.5s;
+}
+
+span.button{
+    color: aquamarine;
+    position: absolute; /* 寬高獨立顯示，不受父元素影響 */
+    font-size: 30px;
+    top : 85%;
+    z-index: 10;
+}
+
+/* judge line when pressed */
+div.judge_line_pressed{
+    transition-duration: 0.5s;
+    height: 140px;
+    box-shadow: 0 0 10px aquamarine, 0 0 10px aquamarine, 0 0 40px aquamarine, 0 0 140px aquamarine;
+}
+
+/* judge line when pressed perfect*/
+div.judge_line_perfect{
+    box-shadow: 0 0 10px gold, 0 0 10px gold, 0 0 40px gold, 0 0 140px gold;
+}
+div.judge_line_good{
+    box-shadow: 0 0 10px rgb(8, 142, 225), 0 0 10px rgb(8, 142, 225), 0 0 40px rgb(8, 142, 225), 0 0 140px rgb(8, 142, 225);
+}
+
+div.score{
+    color: transparent;
+    position: relative;
+    letter-spacing: 2px;
+    font-family: sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    padding: 5px;
+    top: 75%;
+    left: 10%;
+    width: 80px;
+    height: 0;
+    z-index: 10;
+    transition-duration: 0.5s;
+}
+
+div.perfect{
+    transition-duration: 0.5s;
+    color: gold;
+}
+
+div.good{
+    transition-duration: 0.5s;
+    color: rgb(8, 142, 225);
+}
+
+div.miss{
+    transition-duration: 0.5s;
+    color: gray;
+}
+
+/* combo style */
+#combo{
+    color: white;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+    font-weight: 400;
+    font-size: 20px;
+    padding: 5px;
+    top: 20%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    z-index: 10;
+    transition-duration: 0.5s;
+}
+
+#combo_num{
+    color: gold;
+    font-size: 50px;
+}
+
+#hit_score{
+    font-size: 50px;
+    font-weight: 300;
+}
+
+#confirm_button{
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    background-color: rgb(9, 12, 65);
+    color:aquamarine;
+    padding: 10px;
+}

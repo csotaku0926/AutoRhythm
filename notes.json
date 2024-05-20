@@ -1,0 +1,1168 @@
+{
+    "delay": 45,
+    "stop_time": 2400,
+    "notes":
+    [
+        {
+            "track": "a",
+            "second": 1
+        },
+        {
+            "track": "s",
+            "second": 5
+        },
+        {
+            "track": "d",
+            "second": 9
+        }
+        ,
+        {
+            "track": "s",
+            "second": 13
+        }
+        ,
+        {
+            "track": "f",
+            "second": 17,
+            "comment": "2 SI"
+        }
+        ,
+        {
+            "track": "s",
+            "second": 25
+        }
+        ,
+        {
+            "track": "d",
+            "second": 29,
+            "comment":"5 LA"
+        }
+        ,
+        {
+            "track": "d",
+            "second": 49
+        }
+        ,
+        {
+            "track": "s",
+            "second": 53
+        }
+        ,
+        {
+            "track": "f",
+            "second": 57
+        }
+        ,
+        {
+            "track": "d",
+            "second": 61,
+            "comment": "2 #G"
+        }
+        ,
+        {
+            "track": "s",
+            "second": 69
+        }
+        ,
+        {
+            "track": "a",
+            "second": 73,
+            "comment":"4 MI"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 89
+        }
+        ,
+        {
+            "track": "s",
+            "second": 93
+        }
+        ,
+        {
+            "track": "d",
+            "second": 97
+        }
+        ,
+        {
+            "track": "f",
+            "second": 101
+        }
+        ,
+        {
+            "track": "a",
+            "second": 105,
+            "comment": "4 SI"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 119,
+            "comment": "5 A"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 141,
+            "comment": ""
+        }
+        ,
+        {
+            "track": "s",
+            "second": 145
+        }
+        ,
+        {
+            "track": "a",
+            "second": 149
+        }
+        ,
+        {
+            "track": "d",
+            "second": 153,
+            "comment": "2 B"
+        }
+        ,
+        {
+            "track": "s",
+            "second": 161
+        }
+        ,
+        {
+            "track": "f",
+            "second": 165,
+            "comment": "2.5 E"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 175,
+            "comment": "slide 1"
+        }
+        ,
+        {
+            "track": "s",
+            "second": 177
+        }
+        ,
+        {
+            "track": "d",
+            "second": 179
+        }
+        ,
+        {
+            "track": "a",
+            "second": 195
+        }
+        ,
+        {
+            "track": "f",
+            "second": 195,
+            "comment": "LA before end"
+        }
+        ,
+        {
+            "track": "s",
+            "second": 227,
+            "comment": "intro end mi"
+        }
+        ,
+        {
+            "track": "d",
+            "second": 227,
+            "comment": "intro end"
+        }
+        ,
+        {
+            "track": "h",
+            "second": 259,
+            "comment": "FU"
+        }
+        ,
+        {
+            "track": "j",
+            "second": 263
+        }
+        ,
+        {
+            "track": "h",
+            "second": 267
+        }
+        ,
+        {
+            "track": "j",
+            "second": 275,
+            "comment": "DA"
+        }
+        ,
+        {
+            "track": "k",
+            "second": 279
+        }
+        ,
+        {
+            "track": "h",
+            "second": 287,
+            "comment": "i"
+        }
+        ,
+        {
+            "track": "j",
+            "second": 293
+        }
+        ,
+        {
+            "track": "k",
+            "second": 299,
+            "comment": "no"
+        }
+        ,
+        {
+            "track": "l",
+            "second": 305
+        }
+        ,
+        {
+            "track": "k",
+            "second": 312
+        }
+        ,
+        {
+            "track": "l",
+            "second": 316,
+            "comment": "ji"
+        }
+        ,
+        {
+            "track": "h",
+            "second": 348
+        }
+        ,
+        {
+            "track": "j",
+            "second": 352
+        }
+        ,
+        {
+            "track": "k",
+            "second": 356
+        }
+        ,
+        {
+            "track": "k",
+            "second": 360,
+            "comment": "kara"
+        }
+        ,
+        {
+            "track": "j",
+            "second": 366
+        }
+        ,
+        {
+            "track": "l",
+            "second": 370
+        }
+        ,
+        {
+            "track": "j",
+            "second": 376
+        }
+        ,
+        {
+            "track": "h",
+            "second": 382
+        }
+        ,
+        {
+            "track": "j",
+            "second": 392
+        }
+        ,
+        {
+            "track": "k",
+            "second": 392
+        }
+        ,
+        {
+            "track": "l",
+            "second": 398
+        }
+        ,
+        {
+            "track": "h",
+            "second": 404
+        }
+        ,
+        {
+            "track": "l",
+            "second": 408
+        }
+        ,
+        {
+            "track": "a",
+            "second": 440,
+            "comment": "big bang start"
+        }
+        ,
+        {
+            "track": "l",
+            "second": 440
+        }
+        ,
+        {
+            "track": "a",
+            "second": 444
+        }
+        ,
+        {
+            "track": "l",
+            "second": 444
+        }
+        ,
+        {
+            "track": "f",
+            "second": 456
+        }
+        ,
+        {
+            "track": "h",
+            "second": 456
+        }
+        ,
+        {
+            "track": "f",
+            "second": 460
+        }
+        ,
+        {
+            "track": "h",
+            "second": 460,
+            "comment": "big bang end"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 472
+        }
+        ,
+        {
+            "track": "s",
+            "second": 478
+        }
+        ,
+        {
+            "track": "a",
+            "second": 482
+        }
+        ,
+        {
+            "track": "s",
+            "second": 488
+        }
+        ,
+        {
+            "track": "d",
+            "second": 492
+        }
+        ,
+        {
+            "track": "a",
+            "second": 500,
+            "comment": "#C"
+        }
+        ,
+        {
+            "track": "s",
+            "second": 506
+        }
+        ,
+        {
+            "track": "d",
+            "second": 512
+        }
+        ,
+        {
+            "track": "f",
+            "second": 518
+        }
+        ,
+        {
+            "track": "h",
+            "second": 524
+        }
+        ,
+        {
+            "track": "j",
+            "second": 530
+        }
+        ,
+        {
+            "track": "k",
+            "second": 536,
+            "comment": "4 low LA"
+        }
+        ,
+        {
+            "track": "l",
+            "second": 542
+        }
+        ,
+        {
+            "track": "a",
+            "second": 582
+        }
+        ,
+        {
+            "track": "s",
+            "second": 588
+        }
+        ,
+        {
+            "track": "s",
+            "second": 592
+        }
+        ,
+        {
+            "track": "d",
+            "second": 598
+        }
+        ,
+        {
+            "track": "f",
+            "second": 614,
+            "comment": "wo"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 620
+        }
+        ,
+        {
+            "track": "s",
+            "second": 626
+        }
+        ,
+        {
+            "track": "d",
+            "second": 632,
+            "comment": "first part end"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 700
+        }
+        ,
+        {
+            "track": "s",
+            "second": 706
+        }
+        ,
+        {
+            "track": "d",
+            "second": 712
+        }
+        ,
+        {
+            "track": "f",
+            "second": 716
+        }
+        ,
+        {
+            "track": "h",
+            "second": 750,
+            "comment": "de"
+        }
+        ,
+        {
+            "track": "j",
+            "second": 756
+        }
+        ,
+        {
+            "track": "k",
+            "second": 762
+        }
+        ,
+        {
+            "track": "h",
+            "second": 768
+        }
+        ,
+        {
+            "track": "j",
+            "second": 770
+        }
+        ,
+        {
+            "track": "k",
+            "second": 774
+        }
+        ,
+        {
+            "track": "l",
+            "second": 780,
+            "comment": "kara..."
+        }
+        ,
+        {
+            "track": "a",
+            "second": 806
+        }
+        ,
+        {
+            "track": "s",
+            "second": 812
+        }
+        ,
+        {
+            "track": "d",
+            "second": 818
+        }
+        ,
+        {
+            "track": "f",
+            "second": 822
+        }
+        ,
+        {
+            "track": "a",
+            "second": 828
+        }
+        ,
+        {
+            "track": "s",
+            "second": 832
+        }
+        ,
+        {
+            "track": "d",
+            "second": 836,
+            "comment": "asdf asd~"
+        }
+        ,
+        {
+            "track": "h",
+            "second": 856
+        }
+        ,
+        {
+            "track": "j",
+            "second": 862
+        }
+        ,
+        {
+            "track": "k",
+            "second": 868
+        }
+        ,
+        {
+            "track": "l",
+            "second": 874
+        }
+        ,
+        {
+            "track": "h",
+            "second": 880
+        }
+        ,
+        {
+            "track": "j",
+            "second": 886
+        }
+        ,
+        {
+            "track": "k",
+            "second": 890,
+            "comment": "hjkl hjk~"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 916
+        }
+        ,
+        {
+            "track": "h",
+            "second": 916
+        }
+        ,
+        {
+            "track": "s",
+            "second": 922
+        }
+        ,
+        {
+            "track": "j",
+            "second": 922
+        }
+        ,
+        {
+            "track": "d",
+            "second": 928
+        }
+        ,
+        {
+            "track": "k",
+            "second": 928
+        }
+        ,
+        {
+            "track": "f",
+            "second": 934
+        }
+        ,
+        {
+            "track": "l",
+            "second": 934
+        }
+        ,
+        {
+            "track": "f",
+            "second": 938
+        }
+        ,
+        {
+            "track": "l",
+            "second": 938
+        }
+        ,
+        {
+            "track": "a",
+            "second": 944,
+            "comment": "TO second time"
+        }
+        ,
+        {
+            "track": "h",
+            "second": 944
+        }
+        ,
+        {
+            "track": "s",
+            "second": 950
+        }
+        ,
+        {
+            "track": "j",
+            "second": 950
+        }
+        ,
+        {
+            "track": "d",
+            "second": 956
+        }
+        ,
+        {
+            "track": "k",
+            "second": 956
+        }
+        ,
+        {
+            "track": "f",
+            "second": 962
+        }
+        ,
+        {
+            "track": "l",
+            "second": 962,
+            "comment": "NAI~~"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 990
+        }
+        ,
+        {
+            "track": "f",
+            "second": 990
+        }
+        ,
+        {
+            "track": "h",
+            "second": 990
+        }
+        ,
+        {
+            "track": "l",
+            "second": 990
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1000
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1000
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1000
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1000,
+            "comment": "Into main part"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1020
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1026
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1032
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1036
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1060
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1068
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1074
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1084
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1088,
+            "comment": "sezunasa niwa~"
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1146
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1152
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1158
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1162
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1182
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1184
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1190
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1200
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1204
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1216,
+            "comment": "SNOW HALAtion"
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1216
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1222
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1222
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1226
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1226
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1230
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1230
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1234
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1234,
+            "comment": "first snow end"
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1258
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1266
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1270
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1274,
+            "comment": "GA"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1282
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1290
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1298
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1306
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1312
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1316,
+            "comment": "made"
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1358
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1366
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1374
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1378,
+            "comment": "make zuni"
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1398
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1402
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1406
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1416
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1420,
+            "comment": "kuyasi keto..."
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1435
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1440
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1448
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1454
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1460,
+            "comment": "sukina jyunn jyo~"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1482
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1490
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1496
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1502
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1508
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1512,
+            "comment": "naka..."
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1534
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1538
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1542
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1548
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1552
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1556
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1560
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1564
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1568,
+            "comment":"dame dane"
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1590
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1594
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1598
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1604
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1610
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1614
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1620
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1628,
+            "comment": "sase"
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1670
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1670
+        }
+        ,
+        {
+            "track": "s",
+            "second": 1674
+        }
+        ,
+        {
+            "track": "k",
+            "second": 1674
+        }
+        ,
+        {
+            "track": "d",
+            "second": 1678
+        }
+        ,
+        {
+            "track": "j",
+            "second": 1678
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1682
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1682
+        }
+        ,
+        {
+            "track": "a",
+            "second": 1686
+        }
+        ,
+        {
+            "track": "l",
+            "second": 1686
+        }
+        ,
+        {
+            "track": "f",
+            "second": 1686
+        }
+        ,
+        {
+            "track": "h",
+            "second": 1686,
+            "comment": "The end!!!"
+        }
+
+
+
+        
+
+    ]
+}
