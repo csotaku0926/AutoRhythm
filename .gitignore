@@ -1,2 +1,5 @@
 .vscode
 audio
+*.png
+*.wav
+processing/__pycache__
