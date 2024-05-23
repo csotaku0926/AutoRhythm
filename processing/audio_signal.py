@@ -1,11 +1,14 @@
 import numpy as np
 import librosa
 from scipy import signal
-from scipy.io.wavfile import write
 # plot
 import matplotlib.pyplot as plt
-# just to measure time elapsed
+# measure time elapsed
 import time
+# io
+from scipy.io.wavfile import write
+import os
+import json
 
 def np_stft(signal, window_size, hop_length):
     """
@@ -33,7 +36,11 @@ def timer(callback, title, **kwargs):
     print(f"[*] {title} time: {end_time-start_time}")
     return ret
 
-def plot_spectrogram(x, fs=22050, H=1024, save_title=None, log=True):
+def plot_spectrogram(x:np.ndarray, fs=22050, H=1024, save_title=None, log=True):
+    # change complex array to magnitude
+    if (x.dtype == np.complex64):
+        x = np.abs(x) ** 2
+    
     if (log):
         x = np.log(1 + 100 * x)
     
@@ -48,13 +55,13 @@ def plot_spectrogram(x, fs=22050, H=1024, save_title=None, log=True):
     plt.show()
 
 
-def compute_spectrom(x, fs=22050, N=2048, H=1024):
+def compute_stft(x, fs=22050, N=2048, H=1024):
     X = timer(librosa.stft, "stft", 
               y=x, n_fft=N, hop_length=H, win_length=N, window='hann',
                 center=True, pad_mode='constant')
     # power spectrogram
     Y = np.abs(X) ** 2
-    return Y
+    return X, Y
 
 def hp_medfilt(y, l_h, l_p, binary_mask=False):
     """
@@ -88,13 +95,19 @@ def hp_medfilt(y, l_h, l_p, binary_mask=False):
     return m_h, m_p, y_h, y_p
 
 def reconstruct(X, m_h, m_p, x_len,
-                fs=22050, N=2048, H=1024):
+                fs=22050, N=2048, H=1024,
+                do_istft=False):
     """
     reconstruct harmony and percussive sound, given masks
+
+    - `do_istft`: perform inverse stft or not. This should only be used to listen to output (get .wav)
     """
     X_h = X * m_h
     X_p = X * m_p
 
+    if (not do_istft):
+        return X_h, X_p
+    
     x_h = librosa.istft(stft_matrix=X_h, hop_length=H, win_length=N, window='hann', center=True, length=x_len)
     x_p = librosa.istft(stft_matrix=X_p, hop_length=H, win_length=N, window='hann', center=True, length=x_len)
 
@@ -102,21 +115,121 @@ def reconstruct(X, m_h, m_p, x_len,
     write("harmony.wav", fs, x_h)
     write("percussive.wav", fs, x_p)
 
-def hpss():
-    x, sample_rate = timer(librosa.load, "load", 
-                                path="../audio/snow_halation.mp3", duration=32)
-    x_len = x.size
-    l_h, l_p = 23, 29
+    return x_h, x_p
+    
+def salient_freq(X:np.ndarray, sr=22050, H=1024, start_time=None, end_time=None, my_sfreq_num=None):
+    """
+    capture frequencies with top 15% magnitude
+
+    np.abs(X) is the magnitude of frequency bin `f` at frame `t`
+    bin `f` correspoonds to frequecies (0, sr/n_fft, 2*sr/n_fft, ..., sr/2) 
+    time `t` corresponds to frames[i] * hop_length
+
+    - `X`: stft output with shape ((1 + n_fft/2), (duration * sr / hop_length))
+    
+    Note: In paper, `X` is given by user to capture sfreq for certain percussion sound
+    , I will use whole audio signal for now
+    - `start_time`: start time of salient frequencies (in sec)
+    - `end_time`: end time of salient frequencies (in sec)
+    """
+
+    start_t_band = int(start_time * sr / H) if start_time else None   
+    end_t_band = int(end_time * sr / H) if end_time else None
+    X = X[:, start_t_band:end_t_band]
+
+    x_test = librosa.istft(stft_matrix=X, hop_length=H, win_length=2048, window='hann', center=True)
+    write("test.wav", sr, x_test)
+
+    s_db = librosa.amplitude_to_db(np.abs(X), ref=np.max) 
+    sfreq_num = int(s_db.shape[0] * 0.15) if not my_sfreq_num else my_sfreq_num
+    m_sum = np.sum(s_db, axis=-1) * -1
+    # top-k magnitude
+    sfreq = np.argpartition(m_sum, kth=sfreq_num)[:sfreq_num]
+
+    # then, avg power magnitude of sfreqs are summed up and mutiplied by 0.4
+    threshold = np.sum(np.mean(X[sfreq], axis=1)) * 0.4
+    
+    return sfreq, threshold
+
+def onset_detection(X:np.ndarray, sr=22050, H=1024, interval=0.08,
+                    start_time=None, end_time=None):
+    """
+    identify whether there's a percussion sound
+    for 32 sec, sr=22050, H=1024, one time unit is 0.046 sec, min interval is 0.07
+    that is, check percussion sound every two time units
+
+    - `X`: stft output with shape ((1 + n_fft/2), (duration * sr / hop_length))
+    - `interval`: interval of detection (in sec). Default is 0.08 sec
+    - `start_time`, `end_time`: refer to `salient_frequnecy()`
+    """
+    sfreq, threshold = salient_freq(X, sr, H, start_time, end_time)
+    # to show salient freq spectrogram 
+    # X[~np.isin(np.arange(len(X)), sfreq)] = np.zeros(X.shape[-1])
+    # plot_spectrogram(np.abs(X), save_title="sfreq.png")
+
+    # then, avg power magnitude of sfreqs are summed up and mutiplied by 0.4
+    # threshold = np.sum(np.mean(X[sfreq], axis=1))
+    time_per_frame = H / sr
+    n_frame_per_interval = int(np.ceil(interval / time_per_frame))
+
+    sums = np.sum(X[sfreq, ::n_frame_per_interval], axis=0)
+
+    # compared with previous
+    prev_sum = np.roll(sums, 1)
+    prev_sum[0] = np.inf
+
+    # indices where sum exceeds threshold and larger than previous magnitude
+    valid_indices = (sums > threshold) #np.all([(sums > threshold), (sums > prev_sum)], axis=0)
+
+    interval_indices = np.arange(0, X.shape[1], n_frame_per_interval)
+    percussion = interval_indices[valid_indices] * time_per_frame
+
+    return percussion
+
+def X_to_x(X, H=1024, N=2048, sample_rate=22050):
+    x_test_rm = librosa.istft(stft_matrix=X, hop_length=H, win_length=N, window='hann', center=True)
+    write("test.wav", sample_rate, x_test_rm)
+
+def hpss(audio_filename="../audio/snow_halation.mp3"):
+    l_h, l_p = 23, 9
     N, H = 2048, 1024
 
-    y = compute_spectrom(x, N=N, H=H)
+    x, sample_rate = timer(librosa.load, "load", 
+                                path=audio_filename)
+    # x.shape: (duration * sr, )
+    x_len = x.size
+    print("duration (in sec):", x_len / sample_rate)
+
+    X, y = compute_stft(x, N=N, H=H) 
+
+    m_soft_h, m_soft_p, _, _ = hp_medfilt(y, l_h, l_p)
+    X_h, X_p = reconstruct(X, m_soft_h, m_soft_p, x_len, N=N, H=H, do_istft=False)
+
+    percussion_h = timer(onset_detection, "onset detection (h)", X=X_h, start_time=25, end_time=30)
+    percussion_p = timer(onset_detection, "onset detection (p)", X=X_p, start_time=25, end_time=30)
+
+    return percussion_h, percussion_p
     
-    m_soft_h, m_soft_p, y_h, y_p = hp_medfilt(y, l_h, l_p)
+def output_json(percussion:np.ndarray, interval=0.05, dirname="../beat_map", filename="percussion.json"):
+    """
+    Write percussion array to json file used by `script/game.js`
 
-    plot_spectrogram(y_h, H=H)
-    plot_spectrogram(y_p, H=H)
+    - `interval`: update frequency of the game, default is 50 ms
+    """
+    notes = [{"track": "a", "second": int(s / interval)} for s in percussion]
+    output = {
+        "stop_time": 2400,
+        "notes": notes,
+    }
+    
+    if (not os.path.exists(dirname)):
+        os.makedirs(dirname)
+    
+    with open(os.path.join(dirname, filename), "w", encoding='utf-8') as f:
+        json.dump(output, f, indent=4)
 
-    reconstruct(y, m_soft_h, m_soft_p, x_len, N=N, H=H)
 
 if __name__ == "__main__":
-    hpss()
+    per_h, per_p = hpss()
+    output_json(per_h, filename="harmony.json")
+    output_json(per_p)

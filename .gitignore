@@ -2,4 +2,6 @@
 audio
 *.png
 *.wav
+*.pdf
+*.json
 processing/__pycache__
