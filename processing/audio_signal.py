@@ -1,59 +1,9 @@
 import numpy as np
 import librosa
 from scipy import signal
-# plot
-import matplotlib.pyplot as plt
-# measure time elapsed
-import time
-# io
-from scipy.io.wavfile import write
-import os
-import json
-
-def np_stft(signal, window_size, hop_length):
-    """
-    Short-time Fourier Transform (STFT) with Numpy
-    It does the same thing as `librosa.stft`, but slower
-    """
-    n_frames = 1 + (len(signal) - window_size) // hop_length
-    stft_matrix = np.empty((window_size // 2 + 1, n_frames), dtype=complex)
-
-    for i in range(n_frames):
-        frame = signal[i * hop_length : i * hop_length + window_size]
-        # hamming window (window function)
-        window_frame = frame * np.hamming(window_size)
-        stft_matrix[:, i] = np.fft.rfft(window_frame)
-
-    return stft_matrix
-
-def timer(callback, title, **kwargs):
-    """
-    execute callback function and count elapsed time
-    """
-    start_time = time.time()
-    ret = callback(**kwargs)
-    end_time = time.time()
-    print(f"[*] {title} time: {end_time-start_time}")
-    return ret
-
-def plot_spectrogram(x:np.ndarray, fs=22050, H=1024, save_title=None, log=True):
-    # change complex array to magnitude
-    if (x.dtype == np.complex64):
-        x = np.abs(x) ** 2
-    
-    if (log):
-        x = np.log(1 + 100 * x)
-    
-    plt.figure()
-    librosa.display.specshow(x, sr=fs, hop_length=H, x_axis='time', y_axis='linear')
-    plt.colorbar(format="%+2.0f dB")
-    plt.title("Spectrom")
-    
-    if (save_title):
-        plt.savefig(save_title)
-    
-    plt.show()
-
+from scipy.fftpack import dct
+from utils import *
+from sklearn.cluster import KMeans
 
 def compute_stft(x, fs=22050, N=2048, H=1024):
     X = timer(librosa.stft, "stft", 
@@ -62,6 +12,70 @@ def compute_stft(x, fs=22050, N=2048, H=1024):
     # power spectrogram
     Y = np.abs(X) ** 2
     return X, Y
+
+def cal_mfcc(X:np.ndarray, sr=22050, N=2048, H=1024,
+              num_filt=40, num_cep=12, cep_lifter=None,
+              do_plot=False):
+    """
+    calculate Mel-Frequency Cepstral Coefficient
+
+    number of frames is `duration * fs / H`
+    - `X`: STFT result (power spectrum), shape: (1 + N / 2, duration * fs / H)
+    - `num_filt`: number of filters used in filter bank
+    - `num_cep`: number of MFCCs
+    - `cep_lifter`: D coefficient in sinusodial liftering. Default equals to `num_cep`
+
+    returns
+    - `mfcc`: (num_frames, num_cep) shape
+    """
+    epsilon = np.finfo(float).eps
+    # apply filter banks to STFT result
+    low_freq_mel = 0
+    high_freq_mel = hz_to_mel(1 + sr / 2)
+    # equally spaced out in mel-scaled
+    mel_points = np.linspace(low_freq_mel, high_freq_mel, num_filt + 2)
+    hz_points = mel_to_hz(mel_points)
+    bins = np.floor((N + 1) * hz_points / sr)
+
+    fbank = np.zeros((num_filt, int(np.floor(1 + N / 2))))
+    for m in range(1, num_filt + 1):
+        f_m_minus = int(bins[m - 1]) # f(m - 1), left
+        f_m = int(bins[m])           # f(m), center
+        f_m_plus = int(bins[m + 1])  # f(m + 1), right
+
+        for k in range(f_m_minus, f_m):
+            fbank[m - 1, k] = (k - bins[m - 1]) / (bins[m] - bins[m - 1])
+        for k in range(f_m, f_m_plus):
+            fbank[m - 1, k] = (bins[m + 1] - k) / (bins[m + 1] - bins[m])
+    
+    filter_banks = np.dot(X, fbank.T)
+    # if there's 0, replace with epsilon
+    filter_banks = np.where(filter_banks == 0, epsilon, filter_banks)
+    # there, we get the spectrogram
+    filter_banks = amplitude_to_db(filter_banks)
+    # mean norm
+    filter_banks -= np.mean(filter_banks, axis=0) + epsilon
+
+    ## need to do the transpose to `filter_banks` to fit librosa's "plot_spectrogram"
+    if (do_plot):
+        plot_spectrogram(filter_banks.T, save_title="spectrogram.png", H=H)
+
+    # Now compute MFCCs from spectrogram
+    # (num_frames, num_cep)
+    mfcc = dct(filter_banks, type=2, axis=1, norm='ortho')[:, 1 : (num_cep + 1)] # keep 2-13 coefficnets
+    
+    # sinusodial filtering
+    cep_lifter = num_cep if not cep_lifter else cep_lifter
+    lift = 1 + cep_lifter / 2 * np.sin(np.pi * np.arange(num_cep) / cep_lifter)
+    mfcc *= lift
+
+    # mean norm
+    mfcc -= np.mean(mfcc, axis=0) + epsilon
+
+    if (do_plot):
+        plot_spectrogram(mfcc.T, save_title="mfcc.png", H=H)
+
+    return mfcc
 
 def hp_medfilt(y, l_h, l_p, binary_mask=False):
     """
@@ -107,17 +121,17 @@ def reconstruct(X, m_h, m_p, x_len,
 
     if (not do_istft):
         return X_h, X_p
-    
-    x_h = librosa.istft(stft_matrix=X_h, hop_length=H, win_length=N, window='hann', center=True, length=x_len)
-    x_p = librosa.istft(stft_matrix=X_p, hop_length=H, win_length=N, window='hann', center=True, length=x_len)
+    else:
+        x_h = librosa.istft(stft_matrix=X_h, hop_length=H, win_length=N, window='hann', center=True, length=x_len)
+        x_p = librosa.istft(stft_matrix=X_p, hop_length=H, win_length=N, window='hann', center=True, length=x_len)
 
-    # write ndarray to wav file
-    write("harmony.wav", fs, x_h)
-    write("percussive.wav", fs, x_p)
+        # write ndarray to wav file
+        write("harmony.wav", fs, x_h)
+        write("percussive.wav", fs, x_p)
 
-    return x_h, x_p
+        return x_h, x_p
     
-def salient_freq(X:np.ndarray, sr=22050, H=1024, start_time=None, end_time=None, my_sfreq_num=None):
+def salient_freq(X:np.ndarray, sr=22050, N=2048, H=1024, start_time=None, end_time=None, my_sfreq_num=None):
     """
     capture frequencies with top 15% magnitude
 
@@ -137,13 +151,9 @@ def salient_freq(X:np.ndarray, sr=22050, H=1024, start_time=None, end_time=None,
     end_t_band = int(end_time * sr / H) if end_time else None
     X = X[:, start_t_band:end_t_band]
 
-    x_test = librosa.istft(stft_matrix=X, hop_length=H, win_length=2048, window='hann', center=True)
-    write("test.wav", sr, x_test)
-
-    s_db = librosa.amplitude_to_db(np.abs(X), ref=np.max) 
-    sfreq_num = int(s_db.shape[0] * 0.15) if not my_sfreq_num else my_sfreq_num
-    m_sum = np.sum(s_db, axis=-1) * -1
+    m_sum = np.sum(X, axis=-1) * -1
     # top-k magnitude
+    sfreq_num = int(X.shape[0] * 0.15) if not my_sfreq_num else my_sfreq_num
     sfreq = np.argpartition(m_sum, kth=sfreq_num)[:sfreq_num]
 
     # then, avg power magnitude of sfreqs are summed up and mutiplied by 0.4
@@ -151,7 +161,7 @@ def salient_freq(X:np.ndarray, sr=22050, H=1024, start_time=None, end_time=None,
     
     return sfreq, threshold
 
-def onset_detection(X:np.ndarray, sr=22050, H=1024, interval=0.08,
+def onset_detection(X:np.ndarray, sr=22050, N=2048, H=1024, interval=0.08, n_track=4, my_sfreq_num=None,
                     start_time=None, end_time=None):
     """
     identify whether there's a percussion sound
@@ -161,75 +171,78 @@ def onset_detection(X:np.ndarray, sr=22050, H=1024, interval=0.08,
     - `X`: stft output with shape ((1 + n_fft/2), (duration * sr / hop_length))
     - `interval`: interval of detection (in sec). Default is 0.08 sec
     - `start_time`, `end_time`: refer to `salient_frequnecy()`
-    """
-    sfreq, threshold = salient_freq(X, sr, H, start_time, end_time)
-    # to show salient freq spectrogram 
-    # X[~np.isin(np.arange(len(X)), sfreq)] = np.zeros(X.shape[-1])
-    # plot_spectrogram(np.abs(X), save_title="sfreq.png")
 
-    # then, avg power magnitude of sfreqs are summed up and mutiplied by 0.4
-    # threshold = np.sum(np.mean(X[sfreq], axis=1))
+    returns
+    - percussion: time that percussion happen
+    - track_id: corresponding track ID (according to k-means on MFCCs)
+    """
+    y = np.abs(X) ** 2
+    # cal_mfcc(y.T, sample_rate, N, H)
+    mfcc = timer(cal_mfcc, "mfcc", 
+                 X=y.T, sr=sr, N=N, H=H)
+    mfcc = mfcc.T # (num_cep, n_frames)
+    
+    sfreq, threshold = salient_freq(y, sr, N, H, start_time, end_time, my_sfreq_num)
     time_per_frame = H / sr
     n_frame_per_interval = int(np.ceil(interval / time_per_frame))
 
-    sums = np.sum(X[sfreq, ::n_frame_per_interval], axis=0)
+    sums = np.sum(y[sfreq, ::n_frame_per_interval], axis=0)
 
     # compared with previous
     prev_sum = np.roll(sums, 1)
     prev_sum[0] = np.inf
 
     # indices where sum exceeds threshold and larger than previous magnitude
-    valid_indices = (sums > threshold) #np.all([(sums > threshold), (sums > prev_sum)], axis=0)
+    valid_indices = np.all([(sums > threshold), (sums > prev_sum)], axis=0)
 
-    interval_indices = np.arange(0, X.shape[1], n_frame_per_interval)
-    percussion = interval_indices[valid_indices] * time_per_frame
+    interval_indices = np.arange(0, y.shape[1], n_frame_per_interval)
+    valid_frames = interval_indices[valid_indices]
+    percussion = valid_frames * time_per_frame
 
-    return percussion
+    # use k-mean on MFCC to do grouping
+    valid_mfcc = mfcc[:, valid_frames]
+    # make it (num_valid_frames, num_cep)
+    valid_mfcc = valid_mfcc.T
 
-def X_to_x(X, H=1024, N=2048, sample_rate=22050):
-    x_test_rm = librosa.istft(stft_matrix=X, hop_length=H, win_length=N, window='hann', center=True)
-    write("test.wav", sample_rate, x_test_rm)
+    kmeans = KMeans(n_clusters=n_track, random_state=0).fit(X=valid_mfcc)
 
-def hpss(audio_filename="../audio/snow_halation.mp3"):
+    return percussion, kmeans.labels_
+
+def main(audio_filename="../audio/snow_halation.mp3"):
     l_h, l_p = 23, 9
-    N, H = 2048, 1024
+    N, H = 512, 256
+    emp_c = 0.97
 
     x, sample_rate = timer(librosa.load, "load", 
                                 path=audio_filename)
+    # pre-emphasis: y(t) = x(t) - a * x(t-1)
+    x = np.append(x[0], x[1:] - emp_c * x[:-1])
+
     # x.shape: (duration * sr, )
     x_len = x.size
     print("duration (in sec):", x_len / sample_rate)
 
     X, y = compute_stft(x, N=N, H=H) 
 
+    # HPSS
     m_soft_h, m_soft_p, _, _ = hp_medfilt(y, l_h, l_p)
     X_h, X_p = reconstruct(X, m_soft_h, m_soft_p, x_len, N=N, H=H, do_istft=False)
 
-    percussion_h = timer(onset_detection, "onset detection (h)", X=X_h, start_time=25, end_time=30)
-    percussion_p = timer(onset_detection, "onset detection (p)", X=X_p, start_time=25, end_time=30)
-
-    return percussion_h, percussion_p
+    # percussion, track = timer(onset_detection, "onset detection (whole)", 
+    #                      X=X, N=N, H=H, n_track=8, start_time=25, end_time=30)
     
-def output_json(percussion:np.ndarray, interval=0.05, dirname="../beat_map", filename="percussion.json"):
-    """
-    Write percussion array to json file used by `script/game.js`
-
-    - `interval`: update frequency of the game, default is 50 ms
-    """
-    notes = [{"track": "a", "second": int(s / interval)} for s in percussion]
-    output = {
-        "stop_time": 2400,
-        "notes": notes,
-    }
+    # output_json(percussion, track, filename="whole.json")
     
-    if (not os.path.exists(dirname)):
-        os.makedirs(dirname)
-    
-    with open(os.path.join(dirname, filename), "w", encoding='utf-8') as f:
-        json.dump(output, f, indent=4)
+    percussion_h, track_h = timer(onset_detection, "onset detection (h)", 
+                         X=X_h, N=N, H=H, n_track=4, start_time=31, end_time=32, interval=0.08)
+    percussion_p, track_p = timer(onset_detection, "onset detection (p)", 
+                         X=X_p, N=N, H=H, n_track=4, start_time=31, end_time=32, interval=0.08)
 
+    # merge percussion and harmony
+    all_p, all_t = merge_beatmap(percussion_h, track_h, percussion_p, track_p + 4)
+    output_json(all_p, all_t, filename="whole.json")
+    
 
 if __name__ == "__main__":
-    per_h, per_p = hpss()
-    output_json(per_h, filename="harmony.json")
-    output_json(per_p)
+    main(audio_filename="../audio/snow_halation.mp3")
+    

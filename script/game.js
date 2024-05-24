@@ -180,7 +180,7 @@ confirm_button.addEventListener('click',(() => {
      * 
      */
 
-    fetch ("beat_map/percussion.json")
+    fetch ("beat_map/whole.json")
     .then (res => res.json())
     .then ((json) => draw_note(json))
     
