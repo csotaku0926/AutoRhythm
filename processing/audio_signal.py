@@ -268,9 +268,9 @@ def main(audio_filename="../audio/snow_halation.mp3", duration=None):
     X_h, X_p = reconstruct(X, m_soft_h, m_soft_p, x_len, N=N, H=H, do_istft=False)
     
     percussion_h, track_h = timer(onset_detection, "onset detection (h)", 
-                         X=X_h, N=N, H=H, n_track=4, thres_int=8)
+                         X=X_h, N=N, H=H, n_track=4, thres_int=4)
     percussion_p, track_p = timer(onset_detection, "onset detection (p)", 
-                         X=X_p, N=N, H=H, n_track=4, thres_int=8)
+                         X=X_p, N=N, H=H, n_track=4, thres_int=4)
 
     # merge percussion and harmony
     all_p, all_t = merge_beatmap(percussion_h, track_h, percussion_p, track_p + 4)
