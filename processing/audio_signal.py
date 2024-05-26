@@ -274,7 +274,7 @@ def main(audio_filename="../audio/snow_halation.mp3", duration=None):
 
     # merge percussion and harmony
     all_p, all_t = merge_beatmap(percussion_h, track_h, percussion_p, track_p + 4)
-    output_json(all_p, all_t, stop_time=int(np.ceil(x_len / sample_rate)) ,filename="whole.json")
+    output_json(all_p, all_t, stop_time=int(np.ceil(float(x_len) / sample_rate)) ,filename="whole.json")
     
 if __name__ == "__main__":
     main(audio_filename="../audio/snow_halation.mp3", duration=None)
