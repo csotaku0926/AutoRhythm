@@ -131,7 +131,8 @@ def reconstruct(X, m_h, m_p, x_len,
 
         return x_h, x_p
     
-def salient_freq(X:np.ndarray, sr=22050, N=2048, H=1024, start_time=None, end_time=None, my_sfreq_num=None):
+def salient_freq(X:np.ndarray, sr=22050, N=2048, H=1024, 
+                 start_time=None, end_time=None, my_sfreq_num=None, thres_int=16):
     """
     capture frequencies with top 15% magnitude
 
@@ -145,24 +146,52 @@ def salient_freq(X:np.ndarray, sr=22050, N=2048, H=1024, start_time=None, end_ti
     , I will use whole audio signal for now
     - `start_time`: start time of salient frequencies (in sec)
     - `end_time`: end time of salient frequencies (in sec)
+    - `thres_int`: threshold interval (in sec)
     """
 
     start_t_band = int(start_time * sr / H) if start_time else None   
     end_t_band = int(end_time * sr / H) if end_time else None
     X = X[:, start_t_band:end_t_band]
+    thres_frames = int(np.ceil(thres_int * sr / H))
 
-    m_sum = np.sum(X, axis=-1) * -1
+    # get sum for every `thres_frames` seconds
+    # m_sums = np.sum(X, axis=-1) * -1
+    m_sums = np.add.reduceat(X, 
+                             np.arange(0, len(X[0]), thres_frames),
+                             axis=-1) * -1
+    
     # top-k magnitude
     sfreq_num = int(X.shape[0] * 0.15) if not my_sfreq_num else my_sfreq_num
-    sfreq = np.argpartition(m_sum, kth=sfreq_num)[:sfreq_num]
-
-    # then, avg power magnitude of sfreqs are summed up and mutiplied by 0.4
-    threshold = np.sum(np.mean(X[sfreq], axis=1)) * 0.4
     
-    return sfreq, threshold
+    # salient freq for every `thres_int` seconds
+    # shape : (sfreq_num, duration / thres_int)
+    sfreq = np.argpartition(m_sums, kth=sfreq_num, axis=0)[:sfreq_num, :]
+    # sfreq = np.argpartition(m_sums, kth=sfreq_num, axis=0)[:sfreq_num]
+
+    # then, avg power magnitude of sfreqs are summed up
+    # calculate threshold every `thres_int` seconds
+    
+    X_sfreq = np.zeros(sfreq.shape)
+    for t in range(len(X[0])):
+        sfreq_in_t = sfreq[:, t // thres_frames]
+        X_sfreq[:, t // thres_frames] += X[sfreq_in_t, t]
+        
+    thresholds = np.zeros(len(sfreq[0]))
+    for t in range(len(sfreq[0])):
+        thresholds[t] += np.sum(X_sfreq[:, t])
+    thresholds /= thres_frames
+
+    # expand dimension to (sfreq_num, duration_frame)
+    sfreq_per_frame = np.empty((len(sfreq), len(X[0])))
+    thres_per_frame = np.empty(len(X[0]))
+    indices = np.arange(len(X[0])) // thres_frames
+    sfreq_per_frame = sfreq[:, indices]
+    thres_per_frame = thresholds[indices]
+
+    return sfreq_per_frame, thres_per_frame
 
 def onset_detection(X:np.ndarray, sr=22050, N=2048, H=1024, interval=0.08, n_track=4, my_sfreq_num=None,
-                    start_time=None, end_time=None):
+                    start_time=None, end_time=None, thres_int=16):
     """
     identify whether there's a percussion sound
     for 32 sec, sr=22050, H=1024, one time unit is 0.046 sec, min interval is 0.07
@@ -171,6 +200,7 @@ def onset_detection(X:np.ndarray, sr=22050, N=2048, H=1024, interval=0.08, n_tra
     - `X`: stft output with shape ((1 + n_fft/2), (duration * sr / hop_length))
     - `interval`: interval of detection (in sec). Default is 0.08 sec
     - `start_time`, `end_time`: refer to `salient_frequnecy()`
+    - `thres_int`: threshold interval (in sec)
 
     returns
     - percussion: time that percussion happen
@@ -182,20 +212,29 @@ def onset_detection(X:np.ndarray, sr=22050, N=2048, H=1024, interval=0.08, n_tra
                  X=y.T, sr=sr, N=N, H=H)
     mfcc = mfcc.T # (num_cep, n_frames)
     
-    sfreq, threshold = salient_freq(y, sr, N, H, start_time, end_time, my_sfreq_num)
+    sfreq, thresholds = salient_freq(y, sr, N, H, start_time, end_time, my_sfreq_num, thres_int)
+    # (sfreq_num, duration_frame), (duration_frame)
+
     time_per_frame = H / sr
     n_frame_per_interval = int(np.ceil(interval / time_per_frame))
+    n_interval = int(np.ceil(len(y[0]) / n_frame_per_interval))
+    
+    y_sfreq_frames = np.empty((len(sfreq), n_interval))
+    thres_frames = np.empty(n_interval)
 
-    sums = np.sum(y[sfreq, ::n_frame_per_interval], axis=0)
+    for t in range(n_interval):
+        y_sfreq_frames[:, t] = y[sfreq[:, t * n_frame_per_interval], t * n_frame_per_interval]
+        thres_frames[t] = thresholds[t * n_frame_per_interval]
 
-    # compared with previous
+    # compared with previous sum
+    sums = np.sum(y_sfreq_frames, axis=0)
     prev_sum = np.roll(sums, 1)
     prev_sum[0] = np.inf
 
     # indices where sum exceeds threshold and larger than previous magnitude
-    valid_indices = np.all([(sums > threshold), (sums > prev_sum)], axis=0)
+    valid_indices = np.all([(sums > thres_frames), (sums > prev_sum)], axis=0)
 
-    interval_indices = np.arange(0, y.shape[1], n_frame_per_interval)
+    interval_indices = np.arange(0, len(y[0]), n_frame_per_interval)
     valid_frames = interval_indices[valid_indices]
     percussion = valid_frames * time_per_frame
 
@@ -208,13 +247,13 @@ def onset_detection(X:np.ndarray, sr=22050, N=2048, H=1024, interval=0.08, n_tra
 
     return percussion, kmeans.labels_
 
-def main(audio_filename="../audio/snow_halation.mp3"):
+def main(audio_filename="../audio/snow_halation.mp3", duration=None):
     l_h, l_p = 23, 9
     N, H = 512, 256
     emp_c = 0.97
 
     x, sample_rate = timer(librosa.load, "load", 
-                                path=audio_filename)
+                                path=audio_filename, duration=duration)
     # pre-emphasis: y(t) = x(t) - a * x(t-1)
     x = np.append(x[0], x[1:] - emp_c * x[:-1])
 
@@ -227,22 +266,15 @@ def main(audio_filename="../audio/snow_halation.mp3"):
     # HPSS
     m_soft_h, m_soft_p, _, _ = hp_medfilt(y, l_h, l_p)
     X_h, X_p = reconstruct(X, m_soft_h, m_soft_p, x_len, N=N, H=H, do_istft=False)
-
-    # percussion, track = timer(onset_detection, "onset detection (whole)", 
-    #                      X=X, N=N, H=H, n_track=8, start_time=25, end_time=30)
-    
-    # output_json(percussion, track, filename="whole.json")
     
     percussion_h, track_h = timer(onset_detection, "onset detection (h)", 
-                         X=X_h, N=N, H=H, n_track=4, start_time=31, end_time=32, interval=0.08)
+                         X=X_h, N=N, H=H, n_track=4, thres_int=8)
     percussion_p, track_p = timer(onset_detection, "onset detection (p)", 
-                         X=X_p, N=N, H=H, n_track=4, start_time=31, end_time=32, interval=0.08)
+                         X=X_p, N=N, H=H, n_track=4, thres_int=8)
 
     # merge percussion and harmony
     all_p, all_t = merge_beatmap(percussion_h, track_h, percussion_p, track_p + 4)
-    output_json(all_p, all_t, filename="whole.json")
+    output_json(all_p, all_t, stop_time=int(np.ceil(x_len / sample_rate)) ,filename="whole.json")
     
-
 if __name__ == "__main__":
-    main(audio_filename="../audio/snow_halation.mp3")
-    
+    main(audio_filename="../audio/snow_halation.mp3", duration=None)

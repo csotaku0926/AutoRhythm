@@ -98,13 +98,14 @@ def merge_beatmap(percussion_h, track_h, percussion_p, track_p):
 
     return all_percussion, all_track
 
-def output_json(percussion:np.ndarray, track_id:np.ndarray, interval=0.05, dirname="../beat_map", filename="percussion.json"):
+def output_json(percussion:np.ndarray, track_id:np.ndarray, stop_time:int, interval=0.05, 
+                dirname="../beat_map", filename="percussion.json"):
     """
     Write percussion array to json file used by `script/game.js`
     """
     notes = [{"track": id_to_track(t), "second": int(s / interval)} for (t, s) in zip(track_id, percussion)]
     output = {
-        "stop_time": 2400,
+        "stop_time": int(stop_time / interval),
         "notes": notes,
     }
     
