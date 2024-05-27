@@ -4,6 +4,8 @@ a simple web-based rhythm game with auto beat map generation features.
 
 `processing/audio_signal.py` can generate beat maps automatically, given the music specified by players.
 
+![demo image](https://github.com/csotaku0926/AutoRhythm/blob/main/img/demo.png)
+
 ## How to run
 1. run `pip install -r requirements.txt` to make sure you have necessary libraries
 2. run `cd processing && python audio_signal.py` to generate beat map for the music
