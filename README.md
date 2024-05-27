@@ -1,4 +1,4 @@
-# Rhythm Game
+# AutoRhythm
 
 a simple web-based rhythm game with auto beat map generation features.
 
