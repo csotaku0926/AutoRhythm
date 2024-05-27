@@ -1,3 +1,4 @@
+# Ignore these 
 .vscode
 audio
 *.png
@@ -5,3 +6,6 @@ audio
 *.pdf
 *.json
 processing/__pycache__
+
+# but keep these
+!img/demo.png
