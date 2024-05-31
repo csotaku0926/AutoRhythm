@@ -105,7 +105,7 @@ def output_json(percussion:np.ndarray, track_id:np.ndarray, stop_time:int, inter
     """
     notes = [{"track": id_to_track(t), "second": int(s / interval)} for (t, s) in zip(track_id, percussion)]
     output = {
-        "stop_time": int(stop_time / interval),
+        "stop_time": int(stop_time / interval) + 200,
         "notes": notes,
     }
     

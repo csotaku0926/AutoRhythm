@@ -140,3 +140,13 @@ div.miss{
     color:aquamarine;
     padding: 10px;
 }
+
+#song_selector{
+    width: 100%;
+    height: 40px;
+    background-color: azure;
+}
+
+p.song_file{
+    color:black;
+}

@@ -15,6 +15,9 @@ for(let k of keys)
     
 var timer = 0;
 
+// play audio after first note is ready
+var audio = document.getElementById("selected_song");
+
 // notes element: div
 var notes_a = []; 
 var notes_s = [];
@@ -152,24 +155,20 @@ function draw_note (json) {
         {
             console.log("End playing");
             window.clearInterval(timeID);
-            if (audio) {
-                audio.pause();
-                audio.currentTime = 0;
-            }
+            audio.pause();
+            audio.currentTime = 0;
         }
     }, INTERVAL);      
 };
+
 
 // add the button interaction to play audio
 let confirm_button = document.getElementById("confirm_button");
 confirm_button.addEventListener('click',(() => {
     console.log("clicked!");
     confirm_button.style.display = "none";
-
-    // play audio after first note is ready
-    let audio = document.getElementById("selected_song");
     
-    setInterval(() => {audio.play();}, INTERVAL * JUDGE_HEIGHT);
+    setTimeout(() => {audio.play();}, INTERVAL * JUDGE_HEIGHT);
 
     /**
      * Since most of web servers have blocked direct file system access
